@@ -1,0 +1,66 @@
+---
+title: "Regression Models Course Project"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Executive Summary
+The goal of this analysis is to look at a data set of a collection of cars, explore the relationship between a set of variables and miles per gallon (MPG). Particularly following two questions:
+
+* Is an automatic or manual transmission better for MPG
+* Quantify the MPG difference between automatic and manual transmissions 
+
+In this analysis we will prove using linear models that there is a strong relation between MPG and Transmission and that the statistical difference is a 2.94 increase in MPG when we switch from automatic transmission to manual transmission.
+
+## Exploratory Analysis
+First of all, we load the data from the datasets package and perform some exploratory analysis to have an overall understanding of the data before we do some regressions. We can see here a summary of the datasets, composed of 32 observations and 11 variables. 
+
+```{r}
+library(datasets); data(mtcars); str(mtcars)
+```
+
+We can also perform a "Pairs" plot to have an overall view of the relationship between the variables. The images are very small because there are many variables but we can see a rough shape of the relations:
+
+```{r}
+pairs(mtcars)
+```
+
+## Regression analysis
+First we are going to fit a linear model between MPG and Transmission:
+
+```{r}
+firstmdl <- lm(mpg ~ am, data = mtcars); summary(firstmdl)$coef
+```
+
+The results suggest that the relationship is highly significant with a P-value of 0.000285 The model indicates that for automatic transmission the mean value is 17.147 and for the manual transmission we have a  7.245 increase in Miles Per Gallon.
+
+The next step will be to fit a linear model between MPG and al the variables:
+```{r}
+allmdl <- lm(mpg ~ ., data = mtcars); summary(allmdl)$coef
+```
+
+In this case we see that we have a 2.52 difference between automatic and manual transmission. However, looking at the P-Value, we see that none of the variables have a value lower than our alpha: 0.05
+We will simplify this model taking the variables with the lowest P-Values: wt, qsec, am and hp.
+```{r}
+testmdl <- lm(mpg ~ wt + hp + qsec + am, data = mtcars); summary(testmdl)$coef
+```
+However, we can see in this model that the significance of hp is again very low, with a P-Value much greater that 0.05
+So our final model will be with the variables: wt + qsec + am
+```{r}
+finalmdl <- lm(mpg ~ wt + qsec + am, data = mtcars); summary(finalmdl)
+```
+
+## Conclusion
+We see in our analysis that MPG and Transmission are strongly related, and also that we have to take into account these other variables: wt and qsec.
+Our final model suggest a 2.94 increase in MPG when switching from automatic to manual transmission.
+We can perform an Analysis of Variance (ANOVA) to reassure if our final model is the best one.
+```{r}
+anova(firstmdl, finalmdl,testmdl,allmdl)
+```
+and some plots of the residuals and normality tests and so on.
+```{r}
+par(mfrow=c(2,2)); plot(finalmdl)
+```
